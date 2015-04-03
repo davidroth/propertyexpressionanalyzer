@@ -40,10 +40,10 @@ namespace PropertyExpression
                     var childNodes = (context.Node as InvocationExpressionSyntax).ArgumentList.Arguments[0];
                     var lambdaExprSyntax = childNodes.Expression as SimpleLambdaExpressionSyntax;
                     var memberAccessExprSyntax = lambdaExprSyntax.Body as MemberAccessExpressionSyntax;
-                    if (memberAccessExprSyntax =
-                    string propertyName = memberAccessExprSynt= null)
-                        return;ax.Name.Identifier.ValueText;
-                    
+                    if (memberAccessExprSyntax == null)
+                        return;
+
+                    string propertyName = memberAccessExprSyntax.Name.Identifier.ValueText;
                     var genericNameSyntax = memberAccess.Name as GenericNameSyntax;
                     string genericNameParamter = (genericNameSyntax.TypeArgumentList.Arguments[0] as IdentifierNameSyntax).Identifier.ValueText;
 
