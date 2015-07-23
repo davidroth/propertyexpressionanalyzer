@@ -1,14 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22609.0
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertyExpression", "PropertyExpression\PropertyExpression\PropertyExpression.csproj", "{DBE509E7-979A-415B-9C88-BD0D8EBB213E}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{3C43EB30-83AB-41B4-AB6E-EEFE04C9455F}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertyExpression.Test", "PropertyExpression\PropertyExpression.Test\PropertyExpression.Test.csproj", "{A0B8CFDD-482F-4430-ADEE-6687E98AEF20}"
 EndProject

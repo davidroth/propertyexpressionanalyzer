@@ -48,7 +48,7 @@ namespace PropertyExpression.Test
             var expected = new DiagnosticResult
             {
                 Id = PropertyExpressionAnalyzer.DiagnosticId,
-                Message = String.Format("Property expression '{0}' can be translated to 'nameof({1}.{2})'", "PropertyUtil.GetName<Person>(x => x.Name)", "Person", "Name"),
+                Message = String.Format("Property expression can be translated to nameof({0}.{1})", "Person", "Name"),
                 Severity = DiagnosticSeverity.Warning,
                 Locations =
                     new[] {

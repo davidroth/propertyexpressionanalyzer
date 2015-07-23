@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="PropertyExpression.Vsix..91f8ff78-43d4-4946-b3c6-9cb064fe8d91" Version="1.0" Language="en-US" Publisher="David"/>
+    <Identity Id="PropertyExpression.Vsix..91f8ff78-43d4-4946-b3c6-9cb064fe8d92" Version="1.1" Language="en-US" Publisher="David"/>
     <DisplayName>PropertyExpression.Vsix</DisplayName>
-    <Description xml:space="preserve">This is a sample diagnostic extension for the .NET Compiler Platform ("Roslyn").</Description>
+    <Description xml:space="preserve">A custom refactoring that transforms common property-expression helper code to the new c# 6 nameof expression</Description>
   </Metadata>
   <Installation>
     <InstallationTarget Version="[14.0,]" Id="Microsoft.VisualStudio.Pro" />

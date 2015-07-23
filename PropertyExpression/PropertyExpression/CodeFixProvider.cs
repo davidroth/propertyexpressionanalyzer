@@ -14,6 +14,8 @@ namespace PropertyExpression
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(PropertyExpressionCodeFixProvider)), Shared]
     public class PropertyExpressionCodeFixProvider : CodeFixProvider
     {
+        private const string title = "Use nameof";
+
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
             get { return ImmutableArray.Create(PropertyExpressionAnalyzer.DiagnosticId); }
@@ -39,8 +41,9 @@ namespace PropertyExpression
                 .First();
 
             context.RegisterCodeFix(
-                CodeAction.Create("Use nameof(...)",
-                cancellationToken => UseNameOfAsync(context.Document, expr, cancellationToken)),
+                CodeAction.Create(title,
+                cancellationToken => UseNameOfAsync(context.Document, expr, cancellationToken),
+                title),
                 diagnostic);
         }
 

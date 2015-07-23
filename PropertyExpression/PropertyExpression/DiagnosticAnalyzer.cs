@@ -39,16 +39,24 @@ namespace PropertyExpression
                 {
                     var childNodes = (context.Node as InvocationExpressionSyntax).ArgumentList.Arguments[0];
                     var lambdaExprSyntax = childNodes.Expression as SimpleLambdaExpressionSyntax;
+                    if (lambdaExprSyntax == null)
+                        return;
+
                     var memberAccessExprSyntax = lambdaExprSyntax.Body as MemberAccessExpressionSyntax;
                     if (memberAccessExprSyntax == null)
                         return;
 
                     string propertyName = memberAccessExprSyntax.Name.Identifier.ValueText;
                     var genericNameSyntax = memberAccess.Name as GenericNameSyntax;
-                    string genericNameParamter = (genericNameSyntax.TypeArgumentList.Arguments[0] as IdentifierNameSyntax).Identifier.ValueText;
 
-                    var diagnostic = Diagnostic.Create(Rule, memberAccess.GetLocation(), context.Node.ToString(), genericNameParamter, propertyName);
-                    context.ReportDiagnostic(diagnostic);
+                    var identifierSyntax = genericNameSyntax.TypeArgumentList.Arguments[0] as IdentifierNameSyntax;
+                    if(identifierSyntax != null)
+                    {
+                        string genericNameParamter = identifierSyntax.Identifier.ValueText;
+
+                        var diagnostic = Diagnostic.Create(Rule, memberAccess.GetLocation(), genericNameParamter, propertyName);
+                        context.ReportDiagnostic(diagnostic);
+                    }
                 }
             }
         }
