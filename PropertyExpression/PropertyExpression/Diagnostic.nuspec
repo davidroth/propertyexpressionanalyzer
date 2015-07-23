@@ -14,9 +14,6 @@
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     <copyright>Copyright</copyright>
     <tags>PropertyExpression, analyzers</tags>
-    <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System" targetFramework="" />
-    </frameworkAssemblies>
   </metadata>
   <files>
     <file src="*.dll" target="analyzers\dotnet\cs" exclude="**\Microsoft.CodeAnalysis.*;**\System.Collections.Immutable.*;**\System.Reflection.Metadata.*;**\System.Composition.*" />

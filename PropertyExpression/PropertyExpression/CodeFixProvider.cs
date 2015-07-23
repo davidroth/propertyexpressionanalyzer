@@ -41,9 +41,10 @@ namespace PropertyExpression
                 .First();
 
             context.RegisterCodeFix(
-                CodeAction.Create(title,
-                cancellationToken => UseNameOfAsync(context.Document, expr, cancellationToken),
-                title),
+                CodeAction.Create(
+                    title,
+                    cancellationToken => UseNameOfAsync(context.Document, expr, cancellationToken),
+                    title),
                 diagnostic);
         }
 
