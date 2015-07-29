@@ -52,16 +52,32 @@ namespace PropertyExpression
         {
             var memberAccess = invocationExpression.Expression as MemberAccessExpressionSyntax;
             var genericName = memberAccess.Name as GenericNameSyntax;
-            string genericNameParamter = (genericName.TypeArgumentList.Arguments[0] as IdentifierNameSyntax).Identifier.ValueText;
+            var identifierNameSyntax = (genericName.TypeArgumentList.Arguments[0] as IdentifierNameSyntax);
+            string genericNameParamter = identifierNameSyntax.Identifier.ValueText;
 
             var childNodes = invocationExpression.ArgumentList.Arguments[0];
             var lambdaExp = childNodes.Expression as SimpleLambdaExpressionSyntax;
             var memberAccessBody = lambdaExp.Body as MemberAccessExpressionSyntax;
             string propertyName = memberAccessBody.Name.Identifier.ValueText;
 
-            var nameOfSyntax = SyntaxFactory.ParseExpression(string.Format("nameof({0}.{1})", genericNameParamter, propertyName))
-                .WithLeadingTrivia(invocationExpression.GetLeadingTrivia())
-                .WithTrailingTrivia(invocationExpression.GetTrailingTrivia());
+            var classDeclaration = invocationExpression.FirstAncestorOrSelf<ClassDeclarationSyntax>();
+            var semanticModel = document.GetSemanticModelAsync().Result;
+            var symbol = semanticModel.GetSymbolInfo(identifierNameSyntax).Symbol;
+            var declaredSymbol = semanticModel.GetDeclaredSymbol(classDeclaration);
+
+            ExpressionSyntax nameOfSyntax;
+            if(symbol.Equals(declaredSymbol))
+            {
+                nameOfSyntax = SyntaxFactory.ParseExpression($"nameof({propertyName})")
+                    .WithLeadingTrivia(invocationExpression.GetLeadingTrivia())
+                    .WithTrailingTrivia(invocationExpression.GetTrailingTrivia());
+            }
+            else
+            {
+                nameOfSyntax = SyntaxFactory.ParseExpression($"nameof({genericNameParamter}.{propertyName})")
+                    .WithLeadingTrivia(invocationExpression.GetLeadingTrivia())
+                    .WithTrailingTrivia(invocationExpression.GetTrailingTrivia());
+            }
 
             var root = document.GetSyntaxRootAsync().Result;
             var newRoot = root.ReplaceNode(invocationExpression, nameOfSyntax);

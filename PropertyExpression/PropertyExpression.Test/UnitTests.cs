@@ -19,7 +19,7 @@ namespace PropertyExpression.Test
         }
         
         [TestMethod]
-        public void TestCodeRewrittenToUseNameof()
+        public void TestCodeRewrittenToUseNameof_TypeQualifierUsed_IfNotWithinSameTypeScope()
         {
             var test = @"
     using System;
@@ -79,6 +79,60 @@ namespace PropertyExpression.Test
 
         class Person
         {
+            public string Name { get; set; }
+        }
+    }";
+            VerifyCSharpFix(test, fixtest);
+        }
+
+
+        [TestMethod]
+        public void TestCodeRewrittenToUseNameof_NoTypeQualifierUsed_IfWithinSameTypeScope()
+        {
+            var test = @"
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Diagnostics;
+
+    namespace ConsoleApplication1
+    {
+        class Person
+        {
+            var value = PropertyUtil.GetName<Person>(x => x.Name);
+
+            public string Name { get; set; }
+        }
+    }";
+            var expected = new DiagnosticResult
+            {
+                Id = PropertyExpressionAnalyzer.DiagnosticId,
+                Message = String.Format("Property expression can be translated to nameof({0}.{1})", "Person", "Name"),
+                Severity = DiagnosticSeverity.Warning,
+                Locations =
+                    new[] {
+                            new DiagnosticResultLocation("Test0.cs", 13, 25)
+                        }
+            };
+
+            VerifyCSharpDiagnostic(test, expected);
+
+            var fixtest = @"
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Diagnostics;
+
+    namespace ConsoleApplication1
+    {
+        class Person
+        {
+            var value = nameof(Name);
+
             public string Name { get; set; }
         }
     }";
