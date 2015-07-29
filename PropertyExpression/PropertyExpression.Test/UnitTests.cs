@@ -87,7 +87,7 @@ namespace PropertyExpression.Test
         }
         
         [TestMethod]
-        public void TestRewrite_TypeQualifierIsUsed_If_Member_With_TypeName_Exists_In_AncestorType()
+        public void TestRewrite_PartialNamespace_And_TypeQualifierIsUsed_If_Member_With_TypeName_Exists_In_AncestorType()
         {
             var test = @"
     using System;
@@ -157,6 +157,75 @@ namespace PropertyExpression.Test
             VerifyCSharpFix(test, fixtest);
         }
 
+
+        [TestMethod]
+        public void TestRewrite_FullNamespace_And_TypeQualifierIsUsed_If_Member_With_TypeName_Exists_In_AncestorType()
+        {
+            var test = @"
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Diagnostics;
+
+   namespace MyOtherNamespace.Samples.Test
+    {
+        class User
+        {
+            public string Forename { get; set; }
+        }
+    }
+
+    namespace ConsoleApplication1.Samples
+    {
+        using MyOtherNamespace.Samples.Test;
+        
+        class Person
+        {
+            public Person()
+            {
+                Member = PropertyUtil.GetName<User>(x => x.Forename);
+            }
+            public string Member { get; set; }
+
+            public string User { get; set; }
+        }
+    }";
+
+            var fixtest = @"
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Diagnostics;
+
+   namespace MyOtherNamespace.Samples.Test
+    {
+        class User
+        {
+            public string Forename { get; set; }
+        }
+    }
+
+    namespace ConsoleApplication1.Samples
+    {
+        using MyOtherNamespace.Samples.Test;
+        
+        class Person
+        {
+            public Person()
+            {
+                Member = nameof(MyOtherNamespace.Samples.Test.User.Forename);
+            }
+            public string Member { get; set; }
+
+            public string User { get; set; }
+        }
+    }";
+            VerifyCSharpFix(test, fixtest, allowNewCompilerDiagnostics: true);
+        }
 
         [TestMethod]
         public void TestRewrite_TypeQualifierIsUsed_NoTypeQualifierUsed_IfWithinSameTypeScope()

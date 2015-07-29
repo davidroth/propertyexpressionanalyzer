@@ -77,7 +77,14 @@ namespace PropertyExpression
                 string typeQualifier = genericNameParamter;
                 if(classSymbol.MemberNames.Contains(genericNameParamter))
                 {
-                    typeQualifier = identifierSymbol.ContainingNamespace.Name + "." + typeQualifier;
+                    if(classSymbol.ContainingNamespace.Equals(identifierSymbol.ContainingNamespace))
+                    {
+                        typeQualifier = identifierSymbol.ContainingNamespace.Name + "." + typeQualifier;
+                    }
+                    else
+                    {
+                        typeQualifier = identifierSymbol.ContainingNamespace.ToString() + "." + typeQualifier;
+                    }
                 }
 
                 nameOfSyntax = SyntaxFactory.ParseExpression($"nameof({typeQualifier}.{propertyName})")
