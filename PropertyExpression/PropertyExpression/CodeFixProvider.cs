@@ -48,7 +48,7 @@ namespace PropertyExpression
                 diagnostic);
         }
 
-        private Task<Document> UseNameOfAsync(Document document, InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
+        private async Task<Document> UseNameOfAsync(Document document, InvocationExpressionSyntax invocationExpression, CancellationToken cancellationToken)
         {
             var memberAccess = invocationExpression.Expression as MemberAccessExpressionSyntax;
             var genericName = memberAccess.Name as GenericNameSyntax;
@@ -61,12 +61,12 @@ namespace PropertyExpression
             string propertyName = memberAccessBody.Name.Identifier.ValueText;
 
             var classDeclaration = invocationExpression.FirstAncestorOrSelf<ClassDeclarationSyntax>();
-            var semanticModel = document.GetSemanticModelAsync().Result;
+            var semanticModel = await document.GetSemanticModelAsync();
             var symbol = semanticModel.GetSymbolInfo(identifierNameSyntax).Symbol;
             var declaredSymbol = semanticModel.GetDeclaredSymbol(classDeclaration);
 
             ExpressionSyntax nameOfSyntax;
-            if(symbol.Equals(declaredSymbol))
+            if (symbol.Equals(declaredSymbol))
             {
                 nameOfSyntax = SyntaxFactory.ParseExpression($"nameof({propertyName})")
                     .WithLeadingTrivia(invocationExpression.GetLeadingTrivia())
@@ -81,7 +81,7 @@ namespace PropertyExpression
 
             var root = document.GetSyntaxRootAsync().Result;
             var newRoot = root.ReplaceNode(invocationExpression, nameOfSyntax);
-            return Task.FromResult(document.WithSyntaxRoot(newRoot));
+            return document.WithSyntaxRoot(newRoot);
         }
     }
 }
