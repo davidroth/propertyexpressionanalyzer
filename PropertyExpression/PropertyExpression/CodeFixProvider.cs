@@ -62,11 +62,11 @@ namespace PropertyExpression
 
             var classDeclaration = invocationExpression.FirstAncestorOrSelf<ClassDeclarationSyntax>();
             var semanticModel = await document.GetSemanticModelAsync();
-            var symbol = semanticModel.GetSymbolInfo(identifierNameSyntax).Symbol;
-            var declaredSymbol = semanticModel.GetDeclaredSymbol(classDeclaration);
+            var identifierSymbol = semanticModel.GetSymbolInfo(identifierNameSyntax).Symbol;
+            var classSymbol = semanticModel.GetDeclaredSymbol(classDeclaration);
 
             ExpressionSyntax nameOfSyntax;
-            if (symbol.Equals(declaredSymbol))
+            if (identifierSymbol.Equals(classSymbol))
             {
                 nameOfSyntax = SyntaxFactory.ParseExpression($"nameof({propertyName})")
                     .WithLeadingTrivia(invocationExpression.GetLeadingTrivia())
@@ -74,7 +74,13 @@ namespace PropertyExpression
             }
             else
             {
-                nameOfSyntax = SyntaxFactory.ParseExpression($"nameof({genericNameParamter}.{propertyName})")
+                string typeQualifier = genericNameParamter;
+                if(classSymbol.MemberNames.Contains(genericNameParamter))
+                {
+                    typeQualifier = identifierSymbol.ContainingNamespace.Name + "." + typeQualifier;
+                }
+
+                nameOfSyntax = SyntaxFactory.ParseExpression($"nameof({typeQualifier}.{propertyName})")
                     .WithLeadingTrivia(invocationExpression.GetLeadingTrivia())
                     .WithTrailingTrivia(invocationExpression.GetTrailingTrivia());
             }

@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestHelper;
 
+
 namespace PropertyExpression.Test
 {
     [TestClass]
@@ -19,7 +20,7 @@ namespace PropertyExpression.Test
         }
         
         [TestMethod]
-        public void TestCodeRewrittenToUseNameof_TypeQualifierUsed_IfNotWithinSameTypeScope()
+        public void TestRewrite_TypeQualifierUsed_IfNotWithinSameTypeScope()
         {
             var test = @"
     using System;
@@ -84,10 +85,81 @@ namespace PropertyExpression.Test
     }";
             VerifyCSharpFix(test, fixtest);
         }
+        
+        [TestMethod]
+        public void TestRewrite_TypeQualifierIsUsed_If_Member_With_TypeName_Exists_In_AncestorType()
+        {
+            var test = @"
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Diagnostics;
+
+    namespace ConsoleApplication1.Samples
+    {
+        class User
+        {
+            public string Forename { get; set; }
+        }
+
+        class Person
+        {
+            public Person()
+            {
+                Member = PropertyUtil.GetName<User>(x => x.Forename);
+            }
+            public string Member { get; set; }
+
+            public string User { get; set; }
+        }
+    }";
+            var expected = new DiagnosticResult
+            {
+                Id = PropertyExpressionAnalyzer.DiagnosticId,
+                Message = string.Format("Property expression can be translated to nameof({0}.{1})", "User", "Forename"),
+                Severity = DiagnosticSeverity.Warning,
+                Locations =
+                    new[] {
+                            new DiagnosticResultLocation("Test0.cs", 20, 26)
+                        }
+            };
+
+            VerifyCSharpDiagnostic(test, expected);
+
+            var fixtest = @"
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Diagnostics;
+
+    namespace ConsoleApplication1.Samples
+    {
+        class User
+        {
+            public string Forename { get; set; }
+        }
+
+        class Person
+        {
+            public Person()
+            {
+                Member = nameof(Samples.User.Forename);
+            }
+            public string Member { get; set; }
+
+            public string User { get; set; }
+        }
+    }";
+            VerifyCSharpFix(test, fixtest);
+        }
 
 
         [TestMethod]
-        public void TestCodeRewrittenToUseNameof_NoTypeQualifierUsed_IfWithinSameTypeScope()
+        public void TestRewrite_TypeQualifierIsUsed_NoTypeQualifierUsed_IfWithinSameTypeScope()
         {
             var test = @"
     using System;
