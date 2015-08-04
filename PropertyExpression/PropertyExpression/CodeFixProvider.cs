@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Composition;
 using System.Linq;
 using System.Threading;
@@ -58,13 +60,15 @@ namespace PropertyExpression
             var childNodes = invocationExpression.ArgumentList.Arguments[0];
             var lambdaExp = childNodes.Expression as SimpleLambdaExpressionSyntax;
             var memberAccessBody = lambdaExp.Body as MemberAccessExpressionSyntax;
-            string propertyName = memberAccessBody.Name.Identifier.ValueText;
+
+            // This is a clumsy way to get the full accessor path, maybe there is a more elegant solution
+            string propertyName = memberAccessBody.ToString().Remove(0, lambdaExp.Parameter.Identifier.ValueText.Length + 1);
 
             var classDeclaration = invocationExpression.FirstAncestorOrSelf<ClassDeclarationSyntax>();
             var semanticModel = await document.GetSemanticModelAsync();
             var identifierSymbol = semanticModel.GetSymbolInfo(identifierNameSyntax).Symbol;
             var classSymbol = semanticModel.GetDeclaredSymbol(classDeclaration);
-
+            
             ExpressionSyntax nameOfSyntax;
             if (identifierSymbol.Equals(classSymbol))
             {
@@ -74,8 +78,13 @@ namespace PropertyExpression
             }
             else
             {
+                var propertyMembers = GetMemberHierarchy(classSymbol)
+                    .Where(x => x.Kind == SymbolKind.Property)
+                    .Select(x => ((IPropertySymbol)x).Name)
+                    .ToList();
+                
                 string typeQualifier = genericNameParamter;
-                if(classSymbol.MemberNames.Contains(genericNameParamter))
+                if(propertyMembers.Contains(genericNameParamter))
                 {
                     if(classSymbol.ContainingNamespace.Equals(identifierSymbol.ContainingNamespace))
                     {
@@ -95,6 +104,20 @@ namespace PropertyExpression
             var root = document.GetSyntaxRootAsync().Result;
             var newRoot = root.ReplaceNode(invocationExpression, nameOfSyntax);
             return document.WithSyntaxRoot(newRoot);
+        }
+
+        private ImmutableArray<ISymbol> GetMemberHierarchy(INamedTypeSymbol classSymbol)
+        {
+            var symbols = classSymbol.GetMembers();
+            
+            var baseType = classSymbol.BaseType;
+            while (baseType != null)
+            {
+                symbols = symbols.AddRange(baseType.GetMembers());
+                baseType = baseType.BaseType;
+            }
+
+            return symbols;
         }
     }
 }
