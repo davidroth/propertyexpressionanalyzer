@@ -108,16 +108,16 @@ namespace PropertyExpression
 
         private ImmutableArray<ISymbol> GetMemberHierarchy(INamedTypeSymbol classSymbol)
         {
-            var symbols = classSymbol.GetMembers();
+            var symbols = classSymbol.GetMembers().ToBuilder();
             
             var baseType = classSymbol.BaseType;
             while (baseType != null)
             {
-                symbols = symbols.AddRange(baseType.GetMembers());
+                symbols.AddRange(baseType.GetMembers());
                 baseType = baseType.BaseType;
             }
 
-            return symbols;
+            return symbols.ToImmutable();
         }
     }
 }
